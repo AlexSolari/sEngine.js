@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="UTF-8">
+    <title></title>
+    <link href="Files/style.css" rel="stylesheet" />
+    <script src="Common/utility.js"></script>
+    <script src="Core/vector.js"></script>
+    <script src="Entities/Base/unit.js"></script>
+    <script src="Entities/ball.js"></script>
+    <script src="Core/gamescene.js"></script>
+    <script src="Core/imagecache.js"></script>
+    <script src="Core/gamemanager.js"></script>
+    <script>
+        var Game;
+
+        $(function Launch() {
+            Game = new GameManager();
+            Game.Initialize();
+            Game.Start();
+        });
+    </script>
+</head>
+<body>
+
+    <div id="fpsMeter"></div>
+    
+    <canvas id="canvas"></canvas>
+
+</body>
+</html>

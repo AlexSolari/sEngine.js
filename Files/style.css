@@ -1,0 +1,43 @@
+        body{
+            margin: 0;
+            font-size: 14pt;
+            overflow: hidden;
+            background: black;
+        }
+
+        body div{
+            z-index: 500;
+        }
+
+        canvas{
+            top: 0;
+            left: 0;
+            z-index: 0;
+            position: fixed;
+            background: transparent;
+            color: white;
+        }
+
+        .sunLabel{
+            color: #ffe029;
+        }
+
+        .skyLabel{
+            color: #36fff3;
+        }
+
+        .ecoLabel{
+            color: #3dff00;
+        }
+
+        .roseLabel{
+            color: #ff0400;
+        }
+
+        .deepLabel{
+            color: #ff00e1;
+        }
+        #fpsMeter{
+            float: right;
+            color: white;
+        }
