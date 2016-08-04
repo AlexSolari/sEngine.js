@@ -28,19 +28,19 @@ GameScene.prototype.Update = function Update() {
 
         if (entity.x + entity.radius > self.Screen.width) {
             entity.x = self.Screen.width - entity.radius;
-            entity.speed.Multiply(-1);
+            entity.speed.dX *= -1;
         } 
         if (entity.x - entity.radius < 0){
             entity.x = entity.radius;
-            entity.speed.Multiply(-1);
+            entity.speed.dX *= -1;
         }
         if (entity.y + entity.radius > self.Screen.height){
             entity.y = self.Screen.height - entity.radius;
-            entity.speed.Multiply(-1);
+            entity.speed.dY *= -1;
         }
         if (entity.y - entity.radius < 0){
             entity.y = entity.radius;
-            entity.speed.Multiply(-1);
+            entity.speed.dY *= -1;
 	    }
 
         entity.Update();

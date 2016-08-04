@@ -12,6 +12,7 @@ function Unit(x, y) {
     this.angle = 0;
     this.radius = 0;
     this.isCollideable = false;
+    this.isFrictionable = false;
 }
 
 Unit.prototype.Render = function Render(fps, tickrate) {
@@ -22,10 +23,12 @@ Unit.prototype.Render = function Render(fps, tickrate) {
 
 Unit.prototype.Move = function Move() {
     if (this.isAffectedByGravity) {
-        this.speed.Add(Game.Scene.GravityForce.Clone(this.mass))
+        this.speed.Add(Game.Scene.GravityForce.Clone().Multiply(this.mass*this.mass))
     }
 
-    this.acceleration = this.speed.Clone().Multiply(-0.02);
+    if (this.isFrictionable) {
+        this.acceleration = this.speed.Clone().Multiply(-0.02);
+    }
     this.speed.Add(this.acceleration);
 
     this.x += this.speed.dX;
@@ -58,11 +61,27 @@ Unit.prototype.Update = function Update() {
         });
 
         Intersected.forEach(function ProceedIntersected(entity) {
-            var selfHalfSpeed = self.speed.Clone().Multiply(0.5);
-            var enHalfSpeed = entity.speed.Clone().Multiply(-0.5);
+            var selfHalfSpeed = self.speed.Clone().Multiply(0.5 * (self.mass/entity.mass));
+            var enHalfSpeed = entity.speed.Clone().Multiply(-0.5 * (entity.mass/self.mass));
 
-            self.speed.Multiply(0.8).Add(enHalfSpeed);
-            entity.speed.Multiply(0.8).Add(selfHalfSpeed);
+            if (self.isFrictionable)
+                self.speed.Multiply(0.8)
+	        if (entity.isFrictionable)
+                entity.speed.Multiply(0.8)
+
+            self.speed.Add(enHalfSpeed);
+            entity.speed.Add(selfHalfSpeed);
+
+            self.OnCollision();
+            entity.OnCollision();
         });
     }
+}
+
+Unit.prototype.RemoveSelf = function RemoveSelf() {
+    Game.Scene.Entities.splice(Game.Scene.Entities.indexOf(this), 1);
+}
+
+Unit.prototype.OnCollision = function OnCollision() {
+    
 }

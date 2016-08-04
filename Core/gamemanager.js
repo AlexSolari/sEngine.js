@@ -42,20 +42,39 @@ GameManager.prototype.Start = function Start(targetFPS, targetTickrate) {
 
     this.Scene.Clear();
 
-    for (var index = 0; index < 100; index++) {
-        var unit = new Ball(this.ScreenWidth * Math.random(),this.ScreenHeight * Math.random());
-        unit.speed = new Vector(0,0,20-Math.random()*40,20-Math.random()*40);
-        this.Scene.Add(unit);
+    for (var y = 50; y < this.ScreenHeight - 440; y+=25) {
+        var x = this.ScreenWidth/2 - y;
+        x/=1.3;
+        var end = this.ScreenWidth - x;
+        for (; x < end; x+=25) {
+            var unit = new Block(x,y);
+            this.Scene.Add(unit);
+        }
     }
+    
+
+    var platform = new Platform(this.ScreenWidth / 2, this.ScreenHeight - 20);
+    this.Scene.Add(platform);
+
+    var ball = new Ball(this.ScreenWidth / 2, this.ScreenHeight - 50, platform);
+    this.Scene.Add(ball);
+    ball.speed = new Vector(0, 0, -10, -10);
 
     clearInterval(this.UpdateIntervalID);
     clearInterval(this.RenderIntervalID);
+
     this.UpdateIntervalID = setInterval(function GameLoop() {
         self.Scene.Update();
     }, 1000 / targetTickrate);
     this.RenderIntervalID = setInterval(function GameLoop() {
         self.CountFPS();
         self.Scene.Render(targetFPS, targetTickrate);
+
+        if (platform.x > self.Cursor.x)
+            platform.x -= 10;
+        
+        if (platform.x < self.Cursor.x)
+            platform.x += 10;
     }, 1000 / targetFPS);
 }
 
