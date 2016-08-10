@@ -20,7 +20,24 @@
         $(function Launch() {
             Game = new GameManager();
             Game.Initialize();
-            Game.Start();
+            Game.Start(100, 50, function(game, scene) {
+                for (var y = 50; y < game.ScreenHeight - 440; y+=25) {
+                    var x = game.ScreenWidth/2 - y;
+                    x/=1.3;
+                    var end = game.ScreenWidth - x;
+                    for (; x < end; x+=25) {
+                        var unit = new Block(x,y);
+                        scene.Add(unit);
+                    }
+                }
+
+                var platform = new Platform(game.ScreenWidth / 2, game.ScreenHeight - 20);
+                scene.Add(platform);
+
+                var ball = new Ball(game.ScreenWidth / 2, game.ScreenHeight - 50, platform);
+                scene.Add(ball);
+                ball.speed = new Vector(0, 0, -10, -10);
+            });
         });
     </script>
 </head>

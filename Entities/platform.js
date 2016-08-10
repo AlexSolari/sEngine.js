@@ -16,4 +16,14 @@ function Platform(x, y) {
 Platform.prototype.Update = function Update() {
     this.visualX = this.x;
     this.visualY = this.y;
+
+    this.speed = new Vector(0,0, (Game.Cursor.x - this.x) || 0, 0).Limit(50, false);
+}
+
+Platform.prototype.OnCollision = function OnCollision() {
+    
+}
+
+Platform.prototype.OnIntersection = function OnIntersection(self, entity) {
+    
 }

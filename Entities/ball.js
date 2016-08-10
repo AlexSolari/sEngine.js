@@ -11,7 +11,7 @@ function Ball(x, y, platform) {
     this.isAffectedByGravity = false;
     this.mass = 1;  
     this.sprite = "ball" 
-    this.radius = 10;
+    this.radius = 7;
     this.isCollideable = true;
 }
 
@@ -21,41 +21,16 @@ Ball.prototype.Update = function Update(){
 
     if (this.isCollideable)
     {
-        var self = this;
-
-        var Nearest = Game.Scene.Entities.filter(function FindNearest(another) {
-            return self.x * 2 > another.x && self.x / 2 < another.x && self.y * 2 > another.y && self.y / 2 < another.y;
-        });
-
-        var Intersected = Nearest.filter(function FindIntersected(another) {
-            if (!another.isCollideable || another.id == self.id)
-                return false;
-
-            var dx = self.x - another.x;
-            var dy = self.y - another.y;
-            dx = dx * dx + dy * dy;
-            dy = self.radius + another.radius;
-
-            return dx < dy * dy;
-        });
-
-        Intersected.forEach(function ProceedIntersected(entity) {
-            if (self.x > entity.x - entity.radius && self.x < entity.x + entity.radius)
-                self.speed.dY *= -1;
-            if (self.y > entity.y - entity.radius && self.y < entity.y + entity.radius)
-                self.speed.dX *= -1;
-            
-
-            self.OnCollision();
-            entity.OnCollision();
-        });
+        this.DefaultCollisionProcessing();
     }
 
     if (this.y > Game.ScreenHeight - 40)
     {
         if (Math.abs(this.platform.x - this.x) < 80)
         {
-            self.speed.dY *= -1; 
+            this.speed.dY *= -1; 
+            this.speed.dX += this.platform.speed.dX;
+            this.speed.Limit(10);
             return;
         }
 
@@ -64,7 +39,25 @@ Ball.prototype.Update = function Update(){
         this.RemoveSelf();
 
         var ball = new Ball(this.platform.x, Game.ScreenHeight - 50, this.platform);
-        Game.Scene.Add(ball);
+        Game.GetTopScene().Add(ball);
         ball.speed = new Vector(0, 0, -10, -10);
     }
+}
+
+Ball.prototype.OnIntersection = function OnIntersection(self, entity) {
+    if (self.x > entity.x - entity.radius && self.x < entity.x + entity.radius)
+        self.speed.dY *= -1;
+    if (self.y > entity.y - entity.radius && self.y < entity.y + entity.radius)
+        self.speed.dX *= -1;
+
+    var shiftDirection = new Vector(0, 0, self.x-entity.x, self.y-self.y);
+    self.x += shiftDirection.dX;
+    self.y += shiftDirection.dY; 
+
+    self.OnCollision();
+    entity.OnCollision();
+}
+
+Ball.prototype.OnCollision = function OnCollision() {
+
 }
