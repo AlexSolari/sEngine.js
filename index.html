@@ -8,36 +8,34 @@
     <script src="Common/utility.js"></script>
     <script src="Core/vector.js"></script>
     <script src="Entities/Base/unit.js"></script>
-    <script src="Entities/ball.js"></script>
-    <script src="Entities/block.js"></script>
-    <script src="Entities/platform.js"></script>
     <script src="Core/gamescene.js"></script>
     <script src="Core/imagecache.js"></script>
+    <script src="Core/gamescreen.js"></script>
     <script src="Core/gamemanager.js"></script>
     <script>
         var Game;
 
         $(function Launch() {
+            var acc = {x:0, y:0};
             Game = new GameManager();
             Game.Initialize();
             Game.Start(100, 50, function(game, scene) {
-                for (var y = 50; y < game.ScreenHeight - 440; y+=25) {
-                    var x = game.ScreenWidth/2 - y;
-                    x/=1.3;
-                    var end = game.ScreenWidth - x;
-                    for (; x < end; x+=25) {
-                        var unit = new Block(x,y);
-                        scene.Add(unit);
-                    }
+                for(var i = 50; i--;)
+                {
+                    scene.Entities.push(new Unit(Math.random()*1000,Math.random()*1000));
                 }
 
-                var platform = new Platform(game.ScreenWidth / 2, game.ScreenHeight - 20);
-                scene.Add(platform);
-
-                var ball = new Ball(game.ScreenWidth / 2, game.ScreenHeight - 50, platform);
-                scene.Add(ball);
-                ball.speed = new Vector(0, 0, -10, -10);
+                scene.Entities.forEach((x) => x.radius = 10);
+                scene.Entities.forEach((x) => x.mass = 1);                
+                scene.Entities.forEach((x) => x.isCollideable = true);
+                scene.Entities.forEach((x) => x.isIntersectable = true);
+                scene.Entities.forEach((x) => x.speed = new Vector(4 * Math.random() - 2,4 * Math.random() - 2,4 * Math.random() - 2,4 * Math.random() - 2));
             });
+
+            window.onmousemove = function (event) {
+                acc.x = event.clientX;
+                acc.y = event.clientY;
+            }
         });
     </script>
 </head>

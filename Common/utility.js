@@ -9,7 +9,9 @@ var $ = function Utility(selector, context) {
         searchResult = selector;
     }
     else {
-        window.onload = selector;
+        addEventListener("load", function EventListener() {
+            selector();
+        })
         return;
     }
 

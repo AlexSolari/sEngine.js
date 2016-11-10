@@ -32,18 +32,25 @@ Vector.prototype.Clone = function Clone(limit) {
 }
 
 Vector.prototype.Add = function Add(vector) {
-    if (!vector)
-        return this;
+    var result = this.Clone();
 
-    this.dX += vector.dX;
-    this.dY += vector.dY;
+    result.dX += vector.dX;
+    result.dY += vector.dY;
 
-    return this;
+    result.LengthSquared = this.dX * this.dX + this.dY * this.dY;
+    result.Length = Math.sqrt(this.dX * this.dX + this.dY * this.dY);
+
+    return result;
 }
 
 Vector.prototype.Multiply = function Multiply(coeff) {
-    this.dX *= coeff;
-    this.dY *= coeff;
+    var result = this.Clone();
 
-    return this;
+    result.dX *= coeff;
+    result.dY *= coeff;
+
+    result.LengthSquared = this.dX * this.dX + this.dY * this.dY;
+    result.Length = Math.sqrt(this.dX * this.dX + this.dY * this.dY);
+
+    return result;
 }

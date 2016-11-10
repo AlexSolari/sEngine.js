@@ -15,8 +15,8 @@ function GameManager() {
     this.CurrentSecondNumber = 0;
     this.CurrentFrameNumber = 0;
     this.LastSecondFrameNumber = 0;
-    this.ImageCache = new ImageCache();
-
+    this.ImageCache = null;
+    this.Screen = null;
     this.Cursor = {};
 }
 
@@ -31,6 +31,9 @@ GameManager.prototype.Restart = function Restart(size, targetFPS) {
 GameManager.prototype.Initialize = function Initialize() {
     var self = this;
 
+    self.ImageCache = new ImageCache();
+    self.Screen = new GameScreen(this.ScreenWidth, this.ScreenHeight);
+
     $("body").on("mousemove", function SaveMousePosition(e) {
         self.Cursor.x = e.clientX;
         self.Cursor.y = e.clientY;
@@ -44,19 +47,19 @@ GameManager.prototype.Start = function Start(targetFPS, targetTickrate, initiali
     var self = this;
 
     this.Scenes = [];
-    this.Scenes.push(new GameScene(this.ScreenWidth, this.ScreenHeight));
+    this.Scenes.push(new GameScene());
 
     initializerCallback(this, this.GetTopScene());
 
     clearInterval(this.UpdateIntervalID);
     clearInterval(this.RenderIntervalID);
 
-    this.UpdateIntervalID = setInterval(function GameLoop() {
-        self.GetTopScene().Update();
+    this.UpdateIntervalID = setInterval(function GameUpdateLoop() {
+        self.GetTopScene().UpdateScene();
     }, 1000 / targetTickrate);
-    this.RenderIntervalID = setInterval(function GameLoop() {
+    this.RenderIntervalID = setInterval(function GameRenderLoop() {
         self.CountFPS();
-        self.GetTopScene().Render(targetFPS, targetTickrate);
+        self.Screen.RenderScene(targetFPS, targetTickrate, self.GetTopScene());
     }, 1000 / targetFPS);
 }
 

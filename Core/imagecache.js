@@ -4,7 +4,7 @@ function ImageCache()
     this.Initialize();
 }
 
-ImageCache.prototype.Get = function (url, callback) {
+ImageCache.prototype.Get = function GetImage(url, callback) {
     var result = this.data[url];
     
     if (!result)
@@ -12,14 +12,14 @@ ImageCache.prototype.Get = function (url, callback) {
         var self = this;
         result = new Image();
         
-        result.onload = function () {
+        result.onload = function GetImageOnLoad() {
             self.data[url] = result;
             
             if (callback)
                 callback(result);
         };
         
-        result.onerror = function () {
+        result.onerror = function GetImageOnError() {
             self.data[url] = self.data["sprites/missingTexture.png"];
             console.log("Error while loading sprite " + url);
             
@@ -40,7 +40,7 @@ ImageCache.prototype.Assets = [
                                 "Files/Sprites/missingTexture.png"
                               ];
                                 
-ImageCache.prototype.Initialize = function () {
+ImageCache.prototype.Initialize = function Intialize() {
     console.log("Loading assets @ " + new Date().getTime());
     for (var i = this.Assets.length - 1; i >= 0; i--) {
         this.Get(this.Assets[i]);

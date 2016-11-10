@@ -9,42 +9,44 @@ function Unit(x, y) {
     this.acceleration = new Vector(0, 0, 0, 0);
     this.isAffectedByGravity = false;
     this.mass = 0;  
-    this.sprite = "missingTexture" 
+    this.sprite = "ball"//"missingTexture"; 
     this.angle = 0;
     this.radius = 0;
+    this.isIntersectable = false;
     this.isCollideable = false;
     this.isFrictionable = false;
+
+    this.actionQueue = [];
 }
 
-Unit.prototype.Render = function Render(fps, tickrate) {
-    this.visualX += this.speed.dX * (tickrate/fps);
-    this.visualY += this.speed.dY * (tickrate/fps);
-    Game.GetTopScene().Draw(this.sprite, this.angle, this.visualX, this.visualY);
-}
-
-Unit.prototype.Move = function Move() {
+Unit.prototype.Move = function Move(enviroment) {
     if (this.isAffectedByGravity) {
-        this.speed.Add(Game.GetTopScene().GravityForce.Clone().Multiply(this.mass*this.mass))
+        this.acceleration = this.acceleration.Add(enviroment.GravityForce.Multiply(this.mass*this.mass))
     }
 
     if (this.isFrictionable) {
-        this.acceleration = this.speed.Clone().Multiply(-0.02);
+        this.speed = this.speed.Multiply(enviroment.Viscosity);
     }
-    this.speed.Add(this.acceleration);
+
+    this.speed = this.speed.Add(this.acceleration);
 
     this.x += this.speed.dX;
     this.y += this.speed.dY;
 }
 
-Unit.prototype.DefaultCollisionProcessing = function DefaultCollisionProcessing() {
+Unit.prototype.DefaultIntersectionProcessing = function DefaultIntersectionProcessing() {
     var self = this;
-
-    var Nearest = Game.GetTopScene().Entities.filter(function FindNearest(another) {
-        return self.x * 2 > another.x && self.x / 2 < another.x && self.y * 2 > another.y && self.y / 2 < another.y;
+/*
+    var NearestByX = Game.GetTopScene().Entities.filter(function FindNearestByX(another) {
+        return self.x + self.radius < another.x - another.radius && self.x - self.radius > another.x + another.radius;
     });
 
-    var Intersected = Nearest.filter(function FindIntersected(another) {
-        if (!another.isCollideable || another.id == self.id)
+    var Nearest = NearestByX.filter(function FindNearestByY(another) {
+        return self.y + self.radius < another.y - another.radius && self.y - self.radius > another.y + another.radius;
+    });
+*/
+    var Intersected = Game.GetTopScene().Entities/*Nearest*/.filter(function FindIntersected(another) {
+        if (!another.isIntersectable || another.id == self.id)
             return false;
 
         var dx = self.x - another.x;
@@ -55,17 +57,23 @@ Unit.prototype.DefaultCollisionProcessing = function DefaultCollisionProcessing(
         return dx < dy * dy;
     });
 
-    Intersected.forEach(function IntersectionProcessing(entity) { self.OnIntersection(self, entity); } );    
+    Intersected.forEach(function IntersectionProcessing(entity) {
+         self.OnIntersection(entity); 
+        } );    
 }
 
-Unit.prototype.Update = function Update() {
+Unit.prototype.Update = function Update(enviroment) {
+    this.actionQueue.forEach(function ActionQueueRunner(action) {
+        action();
+    });
+    this.actionQueue = [];
 
     this.visualX = this.x;
     this.visualY = this.y;
 
-    if (this.isCollideable)
+    if (this.isIntersectable)
     {
-        this.DefaultCollisionProcessing();
+        this.DefaultIntersectionProcessing();
     }
 }
 
@@ -73,34 +81,38 @@ Unit.prototype.RemoveSelf = function RemoveSelf() {
     Game.GetTopScene().Entities.splice(Game.GetTopScene().Entities.indexOf(this), 1);
 }
 
-Unit.prototype.OnCollision = function OnCollision() {
-    var selfHalfSpeed = this.speed.Clone().Multiply(0.5 * (this.mass / entity.mass));
+Unit.prototype.OnCollision = function OnCollision(entity, forceInvoked) {
+    function IsIntersected(another) {
+        var dx = self.x - another.x;
+        var dy = self.y - another.y;
+        dx = dx * dx + dy * dy;
+        dy = self.radius + another.radius;
 
-    if (this.isFrictionable)
-        this.speed.Multiply(0.8)
-    if (entity.isFrictionable)
-        entity.speed.Multiply(0.8)
+        return dx < dy * dy;
+    }
 
-    this.speed.Add(enHalfSpeed);
-    entity.speed.Add(selfHalfSpeed);
+    forceInvoked = forceInvoked || false;
 
-    console.warn("You are using default collision processing, this may cause unexpected results!");
+    var speedX = (this.mass * this.speed.dX + entity.mass * entity.speed.dX) / (this.mass + entity.mass);
+    var speedY = (this.mass * this.speed.dY + entity.mass * entity.speed.dY) / (this.mass + entity.mass);
+    this.speed = new Vector(0, 0, -speedX, -speedY);
+
+    do
+    {
+        this.x += this.speed.dX;
+        this.y += this.speed.dY;
+    }
+    while (IsIntersected(entity))
+
+    if(!forceInvoked)
+        entity.OnCollision(this, true);
+
+    //console.log("You are using default collision processing, this may cause unexpected results!");
 }
 
-Unit.prototype.OnIntersection = function OnIntersection(self, entity) {
-    var selfHalfSpeed = self.speed.Clone().Multiply(0.5 * (self.mass / entity.mass));
-    var enHalfSpeed = entity.speed.Clone().Multiply(-0.5 * (entity.mass / self.mass));
+Unit.prototype.OnIntersection = function OnIntersection(entity) {
+    if (this.isCollideable)
+        this.OnCollision(entity);
 
-    if (self.isFrictionable)
-        self.speed.Multiply(0.8)
-    if (entity.isFrictionable)
-        entity.speed.Multiply(0.8)
-
-    self.speed.Add(enHalfSpeed);
-    entity.speed.Add(selfHalfSpeed);
-
-    self.OnCollision();
-    entity.OnCollision();
-
-    console.warn("You are using default intersection processing, this may cause unexpected results!");
+    //console.log("You are using default intersection processing, this may cause unexpected results!");
 }
