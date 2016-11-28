@@ -36,16 +36,8 @@ Unit.prototype.Move = function Move(enviroment) {
 
 Unit.prototype.DefaultIntersectionProcessing = function DefaultIntersectionProcessing() {
     var self = this;
-/*
-    var NearestByX = Game.GetTopScene().Entities.filter(function FindNearestByX(another) {
-        return self.x + self.radius < another.x - another.radius && self.x - self.radius > another.x + another.radius;
-    });
 
-    var Nearest = NearestByX.filter(function FindNearestByY(another) {
-        return self.y + self.radius < another.y - another.radius && self.y - self.radius > another.y + another.radius;
-    });
-*/
-    var Intersected = Game.GetTopScene().Entities/*Nearest*/.filter(function FindIntersected(another) {
+    var Intersected = Game.GetTopScene().Entities.filter(function FindIntersected(another) {
         if (!another.isIntersectable || another.id == self.id)
             return false;
 
@@ -82,6 +74,8 @@ Unit.prototype.RemoveSelf = function RemoveSelf() {
 }
 
 Unit.prototype.OnCollision = function OnCollision(entity, forceInvoked) {
+    var self = this;
+
     function IsIntersected(another) {
         var dx = self.x - another.x;
         var dy = self.y - another.y;
@@ -99,20 +93,16 @@ Unit.prototype.OnCollision = function OnCollision(entity, forceInvoked) {
 
     do
     {
-        this.x += this.speed.dX;
-        this.y += this.speed.dY;
+        this.x += this.speed.dX * 0.5;
+        this.y += this.speed.dY * 0.5;
     }
     while (IsIntersected(entity))
 
     if(!forceInvoked)
         entity.OnCollision(this, true);
-
-    //console.log("You are using default collision processing, this may cause unexpected results!");
 }
 
 Unit.prototype.OnIntersection = function OnIntersection(entity) {
     if (this.isCollideable)
         this.OnCollision(entity);
-
-    //console.log("You are using default intersection processing, this may cause unexpected results!");
 }

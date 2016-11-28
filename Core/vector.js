@@ -10,6 +10,11 @@ function Vector(x1, y1, x2, y2, limit) {
     this.Limit(limit);   
 }
 
+Vector.prototype.RecalculateLength = function RecalculateLength(){
+    this.LengthSquared = this.dX * this.dX + this.dY * this.dY;
+    this.Length = Math.sqrt(this.dX * this.dX + this.dY * this.dY);
+}
+
 Vector.prototype.Limit = function Limit(limit, resizeWhenSmaller) {
     resizeWhenSmaller = resizeWhenSmaller || false;
 
@@ -21,8 +26,7 @@ Vector.prototype.Limit = function Limit(limit, resizeWhenSmaller) {
         this.dY = this.dY * limit / max;
     }
 
-    this.LengthSquared = this.dX * this.dX + this.dY * this.dY;
-    this.Length = Math.sqrt(this.dX * this.dX + this.dY * this.dY);
+    this.RecalculateLength();
 
     return this;
 }
@@ -37,8 +41,7 @@ Vector.prototype.Add = function Add(vector) {
     result.dX += vector.dX;
     result.dY += vector.dY;
 
-    result.LengthSquared = this.dX * this.dX + this.dY * this.dY;
-    result.Length = Math.sqrt(this.dX * this.dX + this.dY * this.dY);
+    this.RecalculateLength();
 
     return result;
 }
@@ -49,8 +52,7 @@ Vector.prototype.Multiply = function Multiply(coeff) {
     result.dX *= coeff;
     result.dY *= coeff;
 
-    result.LengthSquared = this.dX * this.dX + this.dY * this.dY;
-    result.Length = Math.sqrt(this.dX * this.dX + this.dY * this.dY);
-
+    this.RecalculateLength();
+    
     return result;
 }

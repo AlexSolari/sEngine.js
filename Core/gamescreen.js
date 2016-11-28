@@ -5,6 +5,8 @@ function GameScreen(width, height) {
     this.Canvas = canvas[0].getContext("2d");
     this.Canvas.width = width;
     this.Canvas.height = height;
+    this.Width = width;
+    this.Height = height;
 }
 
 GameScreen.prototype.RenderScene = function RenderScene(fps, tickrate, scene) {

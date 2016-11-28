@@ -20,16 +20,24 @@
             Game = new GameManager();
             Game.Initialize();
             Game.Start(100, 50, function(game, scene) {
-                for(var i = 50; i--;)
+                for(var i = 100; i--;)
                 {
-                    scene.Entities.push(new Unit(Math.random()*1000,Math.random()*1000));
+                    var xMod = Math.random();
+                    var yMod = Math.random();
+                    scene.Entities.push(new Unit(1280 * xMod,720 * yMod));
                 }
+
+                var s = (x) => Math.random() * x - x/2;
 
                 scene.Entities.forEach((x) => x.radius = 10);
                 scene.Entities.forEach((x) => x.mass = 1);                
                 scene.Entities.forEach((x) => x.isCollideable = true);
                 scene.Entities.forEach((x) => x.isIntersectable = true);
-                scene.Entities.forEach((x) => x.speed = new Vector(4 * Math.random() - 2,4 * Math.random() - 2,4 * Math.random() - 2,4 * Math.random() - 2));
+                scene.Entities.forEach((x) => x.speed = new Vector(s(7),s(7),s(7),s(7)));
+                //
+                setInterval(function(){
+                     //scene.Entities.forEach((u) => u.acceleration = new Vector(u.x, u.y, 640, 500).Limit(0.23));
+                }, 20);
             });
 
             window.onmousemove = function (event) {

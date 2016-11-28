@@ -47,7 +47,7 @@ GameManager.prototype.Start = function Start(targetFPS, targetTickrate, initiali
     var self = this;
 
     this.Scenes = [];
-    this.Scenes.push(new GameScene());
+    this.Scenes.push(new GameScene(self.Screen));
 
     initializerCallback(this, this.GetTopScene());
 
