@@ -1,57 +1,249 @@
 ﻿<!DOCTYPE html>
 <html>
+
 <head lang="en">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="UTF-8">
-    <title></title>
+    <title>sEngine Demo</title>
     <link href="Files/style.css" rel="stylesheet" />
     <script src="Common/utility.js"></script>
-    <script src="Core/vector.js"></script>
+    <script src="Core/Util/vector.js"></script>
     <script src="Entities/Base/unit.js"></script>
+    <script src="Core/Modules/collisionProcessor.js"></script>
+    <script src="Core/Modules/imagecache.js"></script>
     <script src="Core/gamescene.js"></script>
-    <script src="Core/imagecache.js"></script>
     <script src="Core/gamescreen.js"></script>
     <script src="Core/gamemanager.js"></script>
     <script>
-        var Game;
-
-        $(function Launch() {
-            var acc = {x:0, y:0};
-            Game = new GameManager();
-            Game.Initialize();
-            Game.Start(100, 50, function(game, scene) {
-                for(var i = 100; i--;)
-                {
+        var acc = { x: 0, y: 0 };
+        var presets = {
+            Default: function (game, scene) {
+                for (var i = 100; i--;) {
                     var xMod = Math.random();
                     var yMod = Math.random();
-                    scene.Entities.push(new Unit(1280 * xMod,720 * yMod));
+                    scene.Entities.push(new Unit(window.innerWidth * xMod, window.innerHeight * yMod));
                 }
 
-                var s = (x) => Math.random() * x - x/2;
+                var s = (x) => Math.random() * x - x / 2;
 
-                scene.Entities.forEach((x) => x.radius = 10);
-                scene.Entities.forEach((x) => x.mass = 1);                
+                scene.Entities.forEach((x) => x.radius = 10 + s(10));
+                scene.Entities.forEach((x) => x.mass = 1 * (x.radius / 15));
                 scene.Entities.forEach((x) => x.isCollideable = true);
                 scene.Entities.forEach((x) => x.isIntersectable = true);
-                scene.Entities.forEach((x) => x.speed = new Vector(s(7),s(7),s(7),s(7)));
-                //
-                setInterval(function(){
-                     //scene.Entities.forEach((u) => u.acceleration = new Vector(u.x, u.y, 640, 500).Limit(0.23));
+                scene.Entities.forEach((x) => x.speed = new Vector(
+                    2 + s(6),
+                    2 + s(6),
+                    2 + s(6),
+                    2 + s(6)
+                ));
+                var mouseTrackInterval = setInterval(function () {
+                    if (acc.pressed) {
+                        scene.Entities.forEach((u) => u.acceleration = new Vector(u.x, u.y, acc.x, acc.y).Limit(0.1));
+                    }
+                    else {
+                        scene.Entities.forEach((u) => u.acceleration = new Vector(0, 0, 0, 0));
+                    }
                 }, 20);
-            });
+
+                return function () {
+                    clearInterval(mouseTrackInterval);
+                };
+            },
+            Gravity: function (game, scene) {
+                for (var i = 50; i--;) {
+                    var xMod = Math.random();
+                    var yMod = Math.random();
+                    scene.Entities.push(new Unit(window.innerWidth * xMod, window.innerHeight * yMod));
+                }
+
+                game.UpdateCallbacks.push(function(game, scene){
+                    scene.Entities.forEach(function (entity) {
+                        if (entity.y < entity.radius || entity.y > scene.Screen.Height - entity.radius)
+                        {
+                            entity.speed.dY *= -0.9;
+                            if (entity.x == scene.Screen.Height - entity.radius)
+                            {
+                                entity.speed.dX *= -0.9999;
+                            }
+                        }
+                        if (entity.y > scene.Screen.Height - entity.radius)
+                            entity.y = scene.Screen.Height - entity.radius;
+                        });
+                })
+
+                var s = (x) => Math.random() * x - x / 2;
+
+                scene.Entities.forEach((x) => x.radius = 12 + s(10));
+                scene.Entities.forEach((x) => x.mass = 1 * (x.radius / 15));
+                scene.Entities.forEach((x) => x.isCollideable = true);
+                scene.Entities.forEach((x) => x.isIntersectable = true);
+                scene.Entities.forEach((x) => x.isAffectedByGravity = true);
+                scene.Entities.forEach((x) => x.speed = new Vector(
+                    2 + s(6),
+                    2 + s(6),
+                    2 + s(6),
+                    2 + s(6)
+                ));
+                var mouseTrackInterval = setInterval(function () {
+                    if (acc.pressed) {
+                        scene.Entities.forEach((u) => u.acceleration = new Vector(u.x, u.y, acc.x, acc.y).Limit(0.1));
+                    }
+                    else {
+                        scene.Entities.forEach((u) => u.acceleration = new Vector(0, 0, 0, 0));
+                    }
+                }, 20);
+
+                return function () {
+                    clearInterval(mouseTrackInterval);
+                };
+            },
+            SimpleCollisions: function (game, scene) {
+                var entity1 = new Unit(600, 380);
+                entity1.mass = 1;
+                entity1.radius = 10;
+                var entity2 = new Unit(300, 300);
+                entity2.mass = 3;
+                entity2.radius = 20;
+                var entity3 = new Unit(600, 800);
+                entity3.mass = 1;
+                entity3.radius = 10;
+
+                entity1.speed = new Vector(0, 0, -2, 2);
+                entity2.speed = new Vector(0, 0, 3, 3);
+                entity3.speed = new Vector(0, 0, 0, -0.5);
+
+                scene.Entities.push(entity1);
+                scene.Entities.push(entity2);
+                scene.Entities.push(entity3);
+
+                scene.Entities.forEach((x) => x.isCollideable = true);
+                scene.Entities.forEach((x) => x.isIntersectable = true);
+                var mouseTrackInterval = setInterval(function () {
+                    if (acc.pressed) {
+                        scene.Entities.forEach((u) => u.acceleration = new Vector(u.x, u.y, acc.x, acc.y).Limit(0.1));
+                    }
+                    else {
+                        scene.Entities.forEach((u) => u.acceleration = new Vector(0, 0, 0, 0));
+                    }
+                }, 20);
+
+                return function () {
+                    clearInterval(mouseTrackInterval);
+                };
+            },
+            HighFriction: function (game, scene) {
+                scene.Enviroment.Viscosity = 0.75;
+
+                for (var i = 100; i--;) {
+                    var xMod = Math.random();
+                    var yMod = Math.random();
+                    scene.Entities.push(new Unit(window.innerWidth * xMod, window.innerHeight * yMod));
+                }
+
+                var s = (x) => Math.random() * x - x / 2;
+
+                scene.Entities.forEach((x) => x.radius = 10 + s(10));
+                scene.Entities.forEach((x) => x.mass = 1 * (x.radius / 15));
+                scene.Entities.forEach((x) => x.isCollideable = true);
+                scene.Entities.forEach((x) => x.isIntersectable = true);
+                scene.Entities.forEach((x) => x.isFrictionable = true);
+                scene.Entities.forEach((x) => x.speed = new Vector(
+                    2 + s(6),
+                    2 + s(6),
+                    2 + s(6),
+                    2 + s(6)
+                ));
+                var mouseTrackInterval = setInterval(function () {
+                    if (acc.pressed) {
+                        scene.Entities.forEach((u) => u.acceleration = new Vector(u.x, u.y, acc.x, acc.y).Limit(0.1));
+                    }
+                    else {
+                        scene.Entities.forEach((u) => u.acceleration = new Vector(0, 0, 0, 0));
+                    }
+                }, 20);
+
+                return function () {
+                    clearInterval(mouseTrackInterval);
+                };
+            },
+            LowFriction: function (game, scene) {
+                scene.Enviroment.Viscosity = 0.9;
+
+                for (var i = 100; i--;) {
+                    var xMod = Math.random();
+                    var yMod = Math.random();
+                    scene.Entities.push(new Unit(window.innerWidth * xMod, window.innerHeight * yMod));
+                }
+
+                var s = (x) => Math.random() * x - x / 2;
+
+                scene.Entities.forEach((x) => x.radius = 10 + s(10));
+                scene.Entities.forEach((x) => x.mass = 1 * (x.radius / 15));
+                scene.Entities.forEach((x) => x.isCollideable = true);
+                scene.Entities.forEach((x) => x.isIntersectable = true);
+                scene.Entities.forEach((x) => x.isFrictionable = true);
+                scene.Entities.forEach((x) => x.speed = new Vector(
+                    2 + s(6),
+                    2 + s(6),
+                    2 + s(6),
+                    2 + s(6)
+                ));
+                var mouseTrackInterval = setInterval(function () {
+                    if (acc.pressed) {
+                        scene.Entities.forEach((u) => u.acceleration = new Vector(u.x, u.y, acc.x, acc.y).Limit(0.1));
+                    }
+                    else {
+                        scene.Entities.forEach((u) => u.acceleration = new Vector(0, 0, 0, 0));
+                    }
+                }, 20);
+
+                return function () {
+                    clearInterval(mouseTrackInterval);
+                };
+            },
+        }
+
+        var Game;
+
+        sEngineHelper(function Launch() {
+            Game = new GameManager();
+            Game.Initialize();
+            Game.Start(60, 60, presets.Default);
 
             window.onmousemove = function (event) {
                 acc.x = event.clientX;
                 acc.y = event.clientY;
             }
+            window.onmousedown = function (event) {
+                acc.pressed = true;
+            }
+            window.onmouseup = function (event) {
+                acc.pressed = false;
+            }
         });
+
+        function Restart(mode) {
+            Game.Stop();
+            Game.Start(60, 60, mode);
+        }
     </script>
 </head>
+
 <body id="body">
 
     <div id="fpsMeter"></div>
+    <div id="tpsMeter"></div>
     
     <canvas id="canvas"></canvas>
-
+    <span style="color: white">Hold <span style="color:gray">MouseLeft</span> to pull entities. Demos:</span>
+    <button onclick="Restart(presets.Default)">Default</button>
+    <button onclick="Restart(presets.Gravity)">Gravity</button>
+    <button onclick="Restart(presets.SimpleCollisions)">SimpleCollisions</button>
+    <button onclick="Restart(presets.HighFriction)">HighFriction</button>
+    <button onclick="Restart(presets.LowFriction)">LowFriction</button>
+    <span style="color: white">
+        Vectors: <span style="color: red">Spd</span> <span style="color: green">Acc</span>
+    </span>
 </body>
+
 </html>

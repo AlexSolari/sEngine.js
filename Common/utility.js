@@ -1,4 +1,4 @@
-var $ = function Utility(selector, context) {
+var sEngineHelper = function Utility(selector, context) {
     var searchResult;
     if (typeof (selector) == "string")    {
         context = context || document;

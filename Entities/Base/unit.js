@@ -9,7 +9,7 @@ function Unit(x, y) {
     this.acceleration = new Vector(0, 0, 0, 0);
     this.isAffectedByGravity = false;
     this.mass = 0;  
-    this.sprite = "ball"//"missingTexture"; 
+    this.sprite = null;//"missingTexture"; 
     this.angle = 0;
     this.radius = 0;
     this.isIntersectable = false;
@@ -25,7 +25,8 @@ Unit.prototype.Move = function Move(enviroment) {
     }
 
     if (this.isFrictionable) {
-        this.speed = this.speed.Multiply(enviroment.Viscosity);
+        var slowdownFactor = ((1 - enviroment.Viscosity) * this.mass ) / 10;
+        this.speed = this.speed.Multiply(1 - slowdownFactor);
     }
 
     this.speed = this.speed.Add(this.acceleration);
@@ -74,32 +75,7 @@ Unit.prototype.RemoveSelf = function RemoveSelf() {
 }
 
 Unit.prototype.OnCollision = function OnCollision(entity, forceInvoked) {
-    var self = this;
-
-    function IsIntersected(another) {
-        var dx = self.x - another.x;
-        var dy = self.y - another.y;
-        dx = dx * dx + dy * dy;
-        dy = self.radius + another.radius;
-
-        return dx < dy * dy;
-    }
-
-    forceInvoked = forceInvoked || false;
-
-    var speedX = (this.mass * this.speed.dX + entity.mass * entity.speed.dX) / (this.mass + entity.mass);
-    var speedY = (this.mass * this.speed.dY + entity.mass * entity.speed.dY) / (this.mass + entity.mass);
-    this.speed = new Vector(0, 0, -speedX, -speedY);
-
-    do
-    {
-        this.x += this.speed.dX * 0.5;
-        this.y += this.speed.dY * 0.5;
-    }
-    while (IsIntersected(entity))
-
-    if(!forceInvoked)
-        entity.OnCollision(this, true);
+    Game.Modules.Collisions.Process(this, entity, Game.GetTopScene());
 }
 
 Unit.prototype.OnIntersection = function OnIntersection(entity) {

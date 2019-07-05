@@ -1,13 +1,11 @@
 function Vector(x1, y1, x2, y2, limit) {
-    limit = limit || 1;
-
     this.dX = x2 - x1;
     this.dY = y2 - y1;
 
-    this.LengthSquared = null; //will be assigned after limiting
-    this.Length = null; //will be assigned after limiting
+    this.RecalculateLength();
 
-    this.Limit(limit);   
+    if (limit)
+        this.Limit(limit);   
 }
 
 Vector.prototype.RecalculateLength = function RecalculateLength(){
@@ -55,4 +53,11 @@ Vector.prototype.Multiply = function Multiply(coeff) {
     this.RecalculateLength();
     
     return result;
+}
+
+Vector.prototype.ToPoint = function ToPoint(){
+    return {
+        x: this.dX,
+        y: this.dY
+    };
 }

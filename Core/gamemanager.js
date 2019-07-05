@@ -6,18 +6,27 @@ function GameManager() {
                 || document.documentElement.clientWidth
                 || document.body.clientWidth;
 
-    this.ScreenHeight = window.innerHeight
+    this.ScreenHeight = -20 + window.innerHeight
                 || document.documentElement.clientHeight
                 || document.body.clientHeight;
     
     this.Scenes = [];
+    this.UpdateCallbacks = [];
 
-    this.CurrentSecondNumber = 0;
+    this.CurrentSecondNumberForFPS = 0;
+    this.CurrentSecondNumberForTPS = 0;
     this.CurrentFrameNumber = 0;
     this.LastSecondFrameNumber = 0;
+    this.CurrentTickNumber = 0;
+    this.LastSecondTickNumber = 0;
+
+    this.CleanUpCallback = function(){};
     this.ImageCache = null;
     this.Screen = null;
     this.Cursor = {};
+    this.Modules = {
+        Collisions: new CollisionProcessor(),
+    };
 }
 
 GameManager.prototype.GetTopScene = function GetTopScene() {
@@ -25,6 +34,7 @@ GameManager.prototype.GetTopScene = function GetTopScene() {
 }
 
 GameManager.prototype.Restart = function Restart(size, targetFPS) {
+    this.Stop();
     this.Start(size, targetFPS);
 }
 
@@ -34,7 +44,7 @@ GameManager.prototype.Initialize = function Initialize() {
     self.ImageCache = new ImageCache();
     self.Screen = new GameScreen(this.ScreenWidth, this.ScreenHeight);
 
-    $("body").on("mousemove", function SaveMousePosition(e) {
+    sEngineHelper("body").on("mousemove", function SaveMousePosition(e) {
         self.Cursor.x = e.clientX;
         self.Cursor.y = e.clientY;
     });
@@ -49,13 +59,17 @@ GameManager.prototype.Start = function Start(targetFPS, targetTickrate, initiali
     this.Scenes = [];
     this.Scenes.push(new GameScene(self.Screen));
 
-    initializerCallback(this, this.GetTopScene());
+    this.CleanUpCallback = initializerCallback(this, this.GetTopScene());
 
     clearInterval(this.UpdateIntervalID);
     clearInterval(this.RenderIntervalID);
 
     this.UpdateIntervalID = setInterval(function GameUpdateLoop() {
+        self.CountTPS();
         self.GetTopScene().UpdateScene();
+        self.UpdateCallbacks.forEach(function(callback) {
+            callback(self, self.GetTopScene());
+        });
     }, 1000 / targetTickrate);
     this.RenderIntervalID = setInterval(function GameRenderLoop() {
         self.CountFPS();
@@ -63,11 +77,28 @@ GameManager.prototype.Start = function Start(targetFPS, targetTickrate, initiali
     }, 1000 / targetFPS);
 }
 
+GameManager.prototype.Stop = function(){
+    this.Scenes = [];
+    this.UpdateCallbacks = [];
+    clearInterval(this.UpdateIntervalID);
+    clearInterval(this.RenderIntervalID);
+    this.CleanUpCallback();
+};
+
 GameManager.prototype.CountFPS = function CountFPS() {
-    if (this.CurrentSecondNumber != new Date().getSeconds()) {
-        $("#fpsMeter").html(this.CurrentFrameNumber - this.LastSecondFrameNumber + "fps");
+    if (this.CurrentSecondNumberForFPS != new Date().getSeconds()) {
+        sEngineHelper("#fpsMeter").html(this.CurrentFrameNumber - this.LastSecondFrameNumber + "fps");
         this.LastSecondFrameNumber = this.CurrentFrameNumber;
-        this.CurrentSecondNumber = new Date().getSeconds();
+        this.CurrentSecondNumberForFPS = new Date().getSeconds();
     }
     this.CurrentFrameNumber++;
+}
+
+GameManager.prototype.CountTPS = function CountFPS() {
+    if (this.CurrentSecondNumberForTPS != new Date().getSeconds()) {
+        sEngineHelper("#tpsMeter").html(this.CurrentTickNumber - this.LastSecondTickNumber + " ticks per second");
+        this.LastSecondTickNumber = this.CurrentTickNumber;
+        this.CurrentSecondNumberForTPS = new Date().getSeconds();
+    }
+    this.CurrentTickNumber++;
 }

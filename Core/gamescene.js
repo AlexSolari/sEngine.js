@@ -3,7 +3,7 @@ function GameScene(screen)
     this.Screen = screen;
     this.Entities = [];
     this.Enviroment = {
-        GravityForce: new Vector(0, 0, 0, 0.01),
+        GravityForce: new Vector(0, 0, 0, 0.1),
         Viscosity: 0.99,
     };
 }
@@ -25,13 +25,17 @@ GameScene.prototype.UpdateScene = function UpdateScene() {
 
         if (entity.x < 0 || entity.x > self.Screen.Width)
         {
-            entity.speed.dX *= -1;
-            entity.acceleration.dX *= -1;
+            if (entity.x < 0)
+                entity.x = self.Screen.Width;
+            if (entity.x > self.Screen.Width)
+                entity.x = 0
         }
         if (entity.y < 0 || entity.y > self.Screen.Height)
         {
-            entity.speed.dY *= -1;
-            entity.acceleration.dY *= -1;
+            if (entity.y < 0)
+                entity.y = self.Screen.Height;
+            if (entity.y > self.Screen.Height)
+                entity.y = 0
         }
 
         entity.speed.RecalculateLength();
