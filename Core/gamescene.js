@@ -20,6 +20,8 @@ GameScene.prototype.Clear = function Clear() {
 GameScene.prototype.UpdateScene = function UpdateScene() {
     var self = this;
 
+    Game.Modules.Collisions.DetectCollisions(this);
+
     this.Entities.forEach(function EntityUpdate(entity) {
 	    entity.Move(self.Enviroment);
 

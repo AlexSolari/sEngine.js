@@ -11,51 +11,47 @@ function Unit(x, y) {
     this.mass = 0;  
     this.sprite = null;//"missingTexture"; 
     this.angle = 0;
-    this.radius = 0;
-    this.isIntersectable = false;
     this.isCollideable = false;
     this.isFrictionable = false;
-
+    this.collider = null;
     this.actionQueue = [];
 }
+
+Unit.prototype.AttachCollider = function(collider){
+    this.collider = collider;
+    
+    this.collider.x = this.x;
+    this.collider.y = this.y;
+}
+
+Unit.prototype.MoveInstantly = function(x, y){
+    this.x = x;
+    this.y = y;
+
+    this.collider.x = this.x;
+    this.collider.y = this.y;
+};
 
 Unit.prototype.Move = function Move(enviroment) {
     if (this.isAffectedByGravity) {
         this.acceleration = this.acceleration.Add(enviroment.GravityForce.Multiply(this.mass*this.mass))
     }
 
+    this.speed = this.speed.Add(this.acceleration);
+
     if (this.isFrictionable) {
         var slowdownFactor = ((1 - enviroment.Viscosity) * this.mass ) / 10;
         this.speed = this.speed.Multiply(1 - slowdownFactor);
     }
 
-    this.speed = this.speed.Add(this.acceleration);
-
     this.x += this.speed.dX;
     this.y += this.speed.dY;
 }
 
-Unit.prototype.DefaultIntersectionProcessing = function DefaultIntersectionProcessing() {
-    var self = this;
-
-    var Intersected = Game.GetTopScene().Entities.filter(function FindIntersected(another) {
-        if (!another.isIntersectable || another.id == self.id)
-            return false;
-
-        var dx = self.x - another.x;
-        var dy = self.y - another.y;
-        dx = dx * dx + dy * dy;
-        dy = self.radius + another.radius;
-
-        return dx < dy * dy;
-    });
-
-    Intersected.forEach(function IntersectionProcessing(entity) {
-         self.OnIntersection(entity); 
-        } );    
-}
-
 Unit.prototype.Update = function Update(enviroment) {
+    this.collider.x = this.x;
+    this.collider.y = this.y;
+
     this.actionQueue.forEach(function ActionQueueRunner(action) {
         action();
     });
@@ -63,22 +59,8 @@ Unit.prototype.Update = function Update(enviroment) {
 
     this.visualX = this.x;
     this.visualY = this.y;
-
-    if (this.isIntersectable)
-    {
-        this.DefaultIntersectionProcessing();
-    }
 }
 
 Unit.prototype.RemoveSelf = function RemoveSelf() {
     Game.GetTopScene().Entities.splice(Game.GetTopScene().Entities.indexOf(this), 1);
-}
-
-Unit.prototype.OnCollision = function OnCollision(entity, forceInvoked) {
-    Game.Modules.Collisions.Process(this, entity, Game.GetTopScene());
-}
-
-Unit.prototype.OnIntersection = function OnIntersection(entity) {
-    if (this.isCollideable)
-        this.OnCollision(entity);
 }

@@ -66,7 +66,7 @@ GameScreen.prototype.Draw = function Draw(sprite, angle, x, y, entity) {
 
         self.Canvas.fillStyle = '#'+fullColorHex(255 * (entity.mass / 2), 255 * (entity.mass / 2), 255 * (entity.mass / 2));
         self.Canvas.beginPath();
-        self.Canvas.arc(x, y, entity.radius, 0, 2 * Math.PI);
+        self.Canvas.arc(x, y, entity.collider.radius, 0, 2 * Math.PI);
         self.Canvas.fill();
     }
 
