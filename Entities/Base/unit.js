@@ -46,6 +46,8 @@ Unit.prototype.Move = function Move(enviroment) {
 
     this.x += this.speed.dX;
     this.y += this.speed.dY;
+    this.collider.x = this.x;
+    this.collider.y = this.y;
 }
 
 Unit.prototype.Update = function Update(enviroment) {

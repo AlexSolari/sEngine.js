@@ -19,17 +19,20 @@ GameScreen.prototype.RenderScene = function RenderScene(fps, tickrate, scene) {
         
         self.Draw(entity.sprite, entity.angle, entity.x, entity.y, entity);
 
-        self.Canvas.strokeStyle = '#ff0000';
-        self.Canvas.beginPath();
-        self.Canvas.moveTo(entity.x,entity.y);
-        self.Canvas.lineTo(entity.x + entity.speed.dX * 10,entity.y + entity.speed.dY * 10);
-        self.Canvas.stroke();
-
-        self.Canvas.strokeStyle = '#00ff00';
-        self.Canvas.beginPath();
-        self.Canvas.moveTo(entity.x,entity.y);
-        self.Canvas.lineTo(entity.x + entity.acceleration.dX * 100,entity.y + entity.acceleration.dY * 100);
-        self.Canvas.stroke();
+        if (Game.Debug)
+        {
+            self.Canvas.strokeStyle = '#ff0000';
+            self.Canvas.beginPath();
+            self.Canvas.moveTo(entity.x,entity.y);
+            self.Canvas.lineTo(entity.x + entity.speed.dX * 10,entity.y + entity.speed.dY * 10);
+            self.Canvas.stroke();
+            
+            self.Canvas.strokeStyle = '#00ff00';
+            self.Canvas.beginPath();
+            self.Canvas.moveTo(entity.x,entity.y);
+            self.Canvas.lineTo(entity.x + entity.acceleration.dX * 100,entity.y + entity.acceleration.dY * 100);
+            self.Canvas.stroke();
+        }
     });
 }
 
@@ -64,10 +67,18 @@ GameScreen.prototype.Draw = function Draw(sprite, angle, x, y, entity) {
             return red+green+blue;
           };
 
-        self.Canvas.fillStyle = '#'+fullColorHex(255 * (entity.mass / 2), 255 * (entity.mass / 2), 255 * (entity.mass / 2));
+        self.Canvas.fillStyle = '#'+fullColorHex(255 * (entity.mass / 3), 255 * (entity.mass / 3), 255 * (entity.mass / 3));
         self.Canvas.beginPath();
         self.Canvas.arc(x, y, entity.collider.radius, 0, 2 * Math.PI);
         self.Canvas.fill();
+
+        if (Game.Debug)
+        {
+            self.Canvas.strokeStyle = '#f5ec42';
+            self.Canvas.beginPath();
+            self.Canvas.arc(x, y, entity.collider.radius, 0, 2 * Math.PI);
+            self.Canvas.stroke();
+        }
     }
 
 }

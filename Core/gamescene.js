@@ -1,6 +1,5 @@
-function GameScene(screen)
+function GameScene()
 {
-    this.Screen = screen;
     this.Entities = [];
     this.Enviroment = {
         GravityForce: new Vector(0, 0, 0, 0.1),
@@ -14,7 +13,7 @@ GameScene.prototype.Add = function Add(entity) {
 
 GameScene.prototype.Clear = function Clear() {
     this.Entities = [];
-    this.Screen.clearRect(0, 0, this.Screen.Width, this.Screen.Height);
+    Game.Modules.Renderer.clearRect(0, 0, Game.Modules.Renderer.Width, Game.Modules.Renderer.Height);
 }
 
 GameScene.prototype.UpdateScene = function UpdateScene() {
@@ -25,18 +24,18 @@ GameScene.prototype.UpdateScene = function UpdateScene() {
     this.Entities.forEach(function EntityUpdate(entity) {
 	    entity.Move(self.Enviroment);
 
-        if (entity.x < 0 || entity.x > self.Screen.Width)
+        if (entity.x < 0 || entity.x > Game.Modules.Renderer.Width)
         {
             if (entity.x < 0)
-                entity.x = self.Screen.Width;
-            if (entity.x > self.Screen.Width)
+                entity.x = Game.Modules.Renderer.Width;
+            if (entity.x > Game.Modules.Renderer.Width)
                 entity.x = 0
         }
-        if (entity.y < 0 || entity.y > self.Screen.Height)
+        if (entity.y < 0 || entity.y > Game.Modules.Renderer.Height)
         {
             if (entity.y < 0)
-                entity.y = self.Screen.Height;
-            if (entity.y > self.Screen.Height)
+                entity.y = Game.Modules.Renderer.Height;
+            if (entity.y > Game.Modules.Renderer.Height)
                 entity.y = 0
         }
 

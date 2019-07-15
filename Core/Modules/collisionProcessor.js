@@ -43,6 +43,9 @@ CollisionProcessor.prototype.Process = function (entity1, entity2) {
 
     var middleVector = impulseEntity1.Add(impulseEntity2);
 
+    var entity1impactFactor = Math.min(entity1.mass / entity2.mass, 1);
+    var entity2impactFactor = Math.min(entity2.mass / entity1.mass, 1);
+
     var entity1result = middleVector.Multiply(0.5 / entity1.mass);
     var entity2result = middleVector.Multiply(0.5 / entity2.mass);
 

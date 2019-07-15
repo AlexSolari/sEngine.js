@@ -11,10 +11,11 @@
     <script src="Entities/Base/unit.js"></script>
     <script src="Core/Colliders/baseCollider.js"></script>
     <script src="Core/Colliders/ballCollider.js"></script>
+    <script src="Core/Modules/logger.js"></script>
     <script src="Core/Modules/collisionProcessor.js"></script>
     <script src="Core/Modules/imagecache.js"></script>
+    <script src="Core/Modules/gamescreen.js"></script>
     <script src="Core/gamescene.js"></script>
-    <script src="Core/gamescreen.js"></script>
     <script src="Core/gamemanager.js"></script>
     <script>
         var acc = { x: 0, y: 0 };
@@ -80,13 +81,13 @@
 
                 game.UpdateCallbacks.push(function(game, scene){
                     scene.Entities.forEach(function (entity) {
-                        if (entity.y < entity.collider.radius || entity.y > scene.Screen.Height - entity.collider.radius)
+                        if (entity.y < entity.collider.radius || entity.y > Game.Modules.Renderer.Height - entity.collider.radius)
                         {
                             entity.speed.dY *= -0.9;
                             entity.speed.dX *= 0.99;
                         }
-                        if (entity.y > scene.Screen.Height - entity.collider.radius)
-                            entity.MoveInstantly(entity.x, scene.Screen.Height - entity.collider.radius);
+                        if (entity.y > Game.Modules.Renderer.Height - entity.collider.radius)
+                            entity.MoveInstantly(entity.x, Game.Modules.Renderer.Height - entity.collider.radius);
                         });
                 });
 
@@ -109,18 +110,41 @@
                 entity1.AttachCollider(new BallCollider(10));
                 var entity2 = new Unit(300, 300);
                 entity2.mass = 3;
-                entity2.AttachCollider(new BallCollider(20));
+                entity2.AttachCollider(new BallCollider(15));
                 var entity3 = new Unit(600, 800);
                 entity3.mass = 1;
                 entity3.AttachCollider(new BallCollider(10));
 
+                var entity4 = new Unit(200, 100);
+                entity4.mass = 1;
+                entity4.AttachCollider(new BallCollider(10));
+                var entity5 = new Unit(500, 100);
+                entity5.mass = 1;
+                entity5.AttachCollider(new BallCollider(10));
+
+                var entity6 = new Unit(400, 500);
+                entity6.mass = 1;
+                entity6.AttachCollider(new BallCollider(10));
+                var entity7 = new Unit(400, 700);
+                entity7.mass = 1;
+                entity7.AttachCollider(new BallCollider(10));
+
+
                 entity1.speed = new Vector(0, 0, -2, 2);
                 entity2.speed = new Vector(0, 0, 3, 3);
                 entity3.speed = new Vector(0, 0, 0, -0.5);
+                entity4.speed = new Vector(0, 0, 2, 0);
+                entity5.speed = new Vector(0, 0, -1, 0);
+                entity6.speed = new Vector(0, 0, 0, 2);
+                entity7.speed = new Vector(0, 0, 0, 0);
 
                 scene.Entities.push(entity1);
                 scene.Entities.push(entity2);
                 scene.Entities.push(entity3);
+                scene.Entities.push(entity4);
+                scene.Entities.push(entity5);
+                scene.Entities.push(entity6);
+                scene.Entities.push(entity7);
 
                 scene.Entities.forEach((x) => x.isCollideable = true);
                 var mouseTrackInterval = setInterval(function () {
@@ -219,7 +243,8 @@
         sEngineHelper(function Launch() {
             Game = new GameManager();
             Game.Initialize();
-            Game.Start(60, 60, presets.Default);
+            Game.Debug = true;
+            Game.Start(120, 120, presets.Default);
 
             window.onmousemove = function (event) {
                 acc.x = event.clientX;
@@ -235,7 +260,7 @@
 
         function Restart(mode) {
             Game.Stop();
-            Game.Start(60, 60, mode);
+            Game.Start(120, 120, mode);
         }
     </script>
 </head>

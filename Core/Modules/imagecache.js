@@ -21,7 +21,7 @@ ImageCache.prototype.Get = function GetImage(url, callback) {
         
         result.onerror = function GetImageOnError() {
             self.data[url] = self.data["sprites/missingTexture.png"];
-            console.log("Error while loading sprite " + url);
+            Game.Modules.Logger.Log("Error while loading sprite " + url);
             
             if (callback)
                 callback(self.data["sprites/missingTexture.png"]);
@@ -41,9 +41,9 @@ ImageCache.prototype.Assets = [
                               ];
                                 
 ImageCache.prototype.Initialize = function Intialize() {
-    console.log("Loading assets @ " + new Date().getTime());
+    Game.Modules.Logger.Log("Loading assets");
     for (var i = this.Assets.length - 1; i >= 0; i--) {
         this.Get(this.Assets[i]);
     }
-    console.log("Assets loaded @ " + new Date().getTime());        
+    Game.Modules.Logger.Log("Assets loaded");        
 };
